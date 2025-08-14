@@ -8,9 +8,9 @@ import java.util.*;
 
 public class TaskManager {
 
-    private Map<Integer, Task> tasks = new HashMap<>();
-    private Map<Integer, Epic> epics = new HashMap<>();
-    private Map<Integer, SubTask> subtasks = new HashMap<>();
+    private final Map<Integer, Task> tasks = new HashMap<>();
+    private final Map<Integer, Epic> epics = new HashMap<>();
+    private final Map<Integer, SubTask> subtasks = new HashMap<>();
     private int nextId = 1;
 
     private int generateId() {
@@ -118,6 +118,14 @@ public class TaskManager {
             epic.getSubtaskIds().clear();
             updateEpicStatus(epic);
         }
+    }
+
+    public void deleteAllEpics() {
+        epics.clear();
+        subtasks.clear();
+    }
+    public void deleteAllTasks() {
+        tasks.clear();
     }
 
     // метод GET
