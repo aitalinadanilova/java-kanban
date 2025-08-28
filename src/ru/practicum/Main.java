@@ -4,11 +4,11 @@ import ru.practicum.model.Task;
 import ru.practicum.model.Epic;
 import ru.practicum.model.SubTask;
 import ru.practicum.model.Status;
-import ru.practicum.manager.TaskManager;
+import ru.practicum.manager.*;
 
 public class Main {
     public static void main(String[] args) {
-        TaskManager manager = new TaskManager();
+        TaskManager manager = Managers.getDefault();
 
         // Создаём обычные задачи
         Task task1 = new Task("Переезд", "Собрать вещи", Status.NEW);
@@ -17,7 +17,7 @@ public class Main {
         manager.addTask(task2);
 
         // Эпик с подзадачами
-        Epic epic1 = new Epic("Праздник", "Организовать вечеринку");
+        Epic epic1 = new Epic("Праздник", "Организовать вечеринку", Status.NEW);
         manager.addEpic(epic1);
 
         SubTask sub1 = new SubTask("Купить еду", "Закупка продуктов", Status.NEW, epic1.getId());
@@ -26,7 +26,7 @@ public class Main {
         manager.addSubTask(sub2);
 
         // Эпик с одной подзадачей
-        Epic epic2 = new Epic("Ремонт", "Обновить кухню");
+        Epic epic2 = new Epic("Ремонт", "Обновить кухню", Status.NEW);
         manager.addEpic(epic2);
         SubTask sub3 = new SubTask("Покрасить стены", "Выбрать цвет", Status.DONE, epic2.getId());
         manager.addSubTask(sub3);
