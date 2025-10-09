@@ -8,11 +8,12 @@ public class SubTask extends Task {
         this.epicId = epicId;
     }
 
-    public int getEpicId() { return epicId; }
+    public int getEpicId() {
+        return epicId;
+    }
 
     @Override
     public String toString() {
         return super.toString() + " (эпик " + epicId + ")";
     }
 }
-
