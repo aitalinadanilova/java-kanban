@@ -28,6 +28,9 @@ public interface TaskManager {
 
     void deleteSubtask(int id);
 
+    // методы DELETE
+    void remove(int id);
+
     void deleteAllSubtasks();
 
     void deleteAllEpics();
