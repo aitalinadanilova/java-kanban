@@ -48,15 +48,14 @@ public class Main {
         sub1.setStatus(Status.DONE);
         manager.updateSubtask(sub1);
         System.out.println("\nПосле перевода sub1 в DONE:");
-        System.out.println("Эпик1: " + manager.getEpicById(epic1.getId())); // ожидаем IN_PROGRESS
 
         sub2.setStatus(Status.DONE);
         manager.updateSubtask(sub2);
         System.out.println("\nПосле перевода sub2 в DONE:");
-        System.out.println("Эпик1: " + manager.getEpicById(epic1.getId())); // ожидаем DONE
+
 
         System.out.println("\nПроверка эпика2 (должен быть DONE):");
-        System.out.println("Эпик2: " + manager.getEpicById(epic2.getId()));
+
 
         // Печатаем обновлённые списки
         System.out.println("\n Списки после обновления статусов ");
