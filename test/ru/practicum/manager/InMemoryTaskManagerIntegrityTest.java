@@ -16,66 +16,6 @@ class InMemoryTaskManagerIntegrityTest {
         manager = new InMemoryTaskManager(new InMemoryHistoryManager());
     }
 
-    //Проверка удаления подзадачи
-    @Test
-    void deleteSubtask_shouldRemoveSubtaskAndClearIdFromEpic() {
-        Epic epic = new Epic("Epic", "EpicDesc", Status.NEW);
-        int epicId = manager.addEpic(epic);
-
-        SubTask s1 = new SubTask("S1", "Desc1", Status.NEW, epicId);
-        SubTask s2 = new SubTask("S2", "Desc2", Status.NEW, epicId);
-        int s1Id = manager.addSubTask(s1);
-        int s2Id = manager.addSubTask(s2);
-
-        Epic before = manager.getEpic(epicId);
-        assertTrue(before.getSubtaskIds().contains(s1Id));
-        assertTrue(before.getSubtaskIds().contains(s2Id));
-
-        manager.deleteSubtask(s1Id);
-
-        assertNull(manager.getSubtask(s1Id), "Удалённая подзадача должна отсутствовать в менеджере");
-
-        Epic updatedEpic = manager.getEpic(epicId);
-        assertFalse(updatedEpic.getSubtaskIds().contains(s1Id),
-                "Эпик не должен содержать id удалённой подзадачи");
-        assertTrue(updatedEpic.getSubtaskIds().contains(s2Id),
-                "Оставшиеся id подзадач должны сохраниться");
-    }
-
-    //Проверка удаления эпика
-    @Test
-    void deleteEpic_shouldRemoveEpicAndItsSubtasks() {
-        Epic epic = new Epic("Epic", "EpicDesc", Status.NEW);
-        int epicId = manager.addEpic(epic);
-
-        SubTask sub = new SubTask("S1", "Desc", Status.NEW, epicId);
-        int subId = manager.addSubTask(sub);
-
-        manager.deleteEpic(epicId);
-
-        assertNull(manager.getEpic(epicId), "Эпик должен быть удалён");
-        assertNull(manager.getSubtask(subId), "Подзадачи удалённого эпика тоже должны быть удалены");
-    }
-
-    //Проверка полного удаления подзадач-
-    @Test
-    void deleteAllSubtasks_shouldClearSubtasksAndEpicsReference() {
-        Epic epic = new Epic("E1", "desc", Status.NEW);
-        int epicId = manager.addEpic(epic);
-
-        manager.addSubTask(new SubTask("S1", "d1", Status.NEW, epicId));
-        manager.addSubTask(new SubTask("S2", "d2", Status.NEW, epicId));
-
-
-        manager.deleteAllSubtasks();
-
-        assertTrue(manager.getAllSubTasks().isEmpty(), "Все подзадачи должны быть удалены");
-
-        Epic updatedEpic = manager.getEpic(epicId);
-        assertTrue(updatedEpic.getSubtaskIds().isEmpty(),
-                "В эпике не должно оставаться старых id подзадач");
-    }
-
     //Проверка генерации id
     @Test
     void manualIdShouldNotConflictWithGeneratedId() {

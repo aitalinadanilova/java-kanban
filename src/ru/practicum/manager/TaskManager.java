@@ -29,7 +29,6 @@ public interface TaskManager {
     void deleteSubtask(int id);
 
     // методы DELETE
-    void remove(int id);
 
     void deleteAllSubtasks();
 
@@ -40,9 +39,6 @@ public interface TaskManager {
     // методы GET
     Task getTask(int id);
 
-    Epic getEpic(int id);
-
-    Epic getEpicById(int id);
 
     SubTask getSubtask(int id);
 

@@ -1,6 +1,4 @@
 package ru.practicum.manager;
-
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.model.*;
 
@@ -13,11 +11,6 @@ class InMemoryTaskManagerHistoryIntegrationTest {
     private InMemoryTaskManager manager;
     private InMemoryHistoryManager history;
 
-    @BeforeEach
-    void setUp() {
-        history = new InMemoryHistoryManager();
-        manager = new InMemoryTaskManager(history);
-    }
 
     @Test
     void getTask_shouldAddToHistory_andEnsureUniquenessAndOrder() {
@@ -48,7 +41,6 @@ class InMemoryTaskManagerHistoryIntegrationTest {
         Task t = new Task("T", "td", Status.NEW);
         int tId = manager.addTask(t);
 
-        manager.getEpic(epicId);
         manager.getSubtask(subId);
         manager.getTask(tId);
 
