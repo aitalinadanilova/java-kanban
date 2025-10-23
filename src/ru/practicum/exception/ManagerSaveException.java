@@ -1,4 +1,4 @@
-package ru.practicum.manager;
+package ru.practicum.exception;
 
 public class ManagerSaveException extends RuntimeException {
     public ManagerSaveException(String message, Throwable cause) {
