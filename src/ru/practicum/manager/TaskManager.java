@@ -39,6 +39,7 @@ public interface TaskManager {
     // методы GET
     Task getTask(int id);
 
+    Epic getEpic(int id);
 
     SubTask getSubtask(int id);
 
