@@ -33,9 +33,9 @@ class FileBackedTaskManagerTest {
         manager.addTask(task);
 
         Epic epic = new Epic("Epic", "Epic description", Status.NEW);
-        manager.addEpic(epic);
+        int epicId = manager.addEpic(epic);
 
-        SubTask sub = new SubTask("Subtask", "Part of epic", Status.DONE, epic.getId());
+        SubTask sub = new SubTask("Subtask", "Part of epic", Status.DONE, epicId);
         manager.addSubTask(sub);
 
         manager.save();
@@ -43,11 +43,29 @@ class FileBackedTaskManagerTest {
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
 
         assertEquals(1, loaded.getAllTasks().size(), "Должна быть 1 задача");
-        assertEquals(1, loaded.getAllEpics().size(), "Должен быть 1 эпик");
-        assertEquals(1, loaded.getAllSubTasks().size(), "Должна быть 1 подзадача");
+        Task loadedTask = loaded.getAllTasks().getFirst();
+        assertEquals(task.getId(), loadedTask.getId());
+        assertEquals(task.getTitle(), loadedTask.getTitle());
+        assertEquals(task.getDescription(), loadedTask.getDescription());
+        assertEquals(task.getStatus(), loadedTask.getStatus());
 
+        assertEquals(1, loaded.getAllEpics().size(), "Должен быть 1 эпик");
         Epic loadedEpic = loaded.getAllEpics().getFirst();
-        assertTrue(loadedEpic.getSubtaskIds().contains(sub.getId()), "Эпик должен содержать ID подзадачи");
+        assertEquals(epic.getId(), loadedEpic.getId());
+        assertEquals(epic.getTitle(), loadedEpic.getTitle());
+        assertEquals(epic.getDescription(), loadedEpic.getDescription());
+        assertEquals(epic.getStatus(), loadedEpic.getStatus());
+        assertEquals(epic.getSubtaskIds().size(), loadedEpic.getSubtaskIds().size(),
+                "Количество подзадач у эпика должно совпадать");
+
+        assertEquals(1, loaded.getAllSubTasks().size(), "Должна быть 1 подзадача");
+        SubTask loadedSub = loaded.getAllSubTasks().getFirst();
+        assertEquals(sub.getId(), loadedSub.getId());
+        assertEquals(sub.getTitle(), loadedSub.getTitle());
+        assertEquals(sub.getDescription(), loadedSub.getDescription());
+        assertEquals(sub.getStatus(), loadedSub.getStatus());
+        assertEquals(sub.getEpicId(), loadedSub.getEpicId(),
+                "EpicId подзадачи должен совпадать");
     }
 
     @Test

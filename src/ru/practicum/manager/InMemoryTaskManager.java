@@ -202,13 +202,4 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.IN_PROGRESS);
         }
     }
-
-    protected List<Integer> getAllIds() {
-        List<Integer> ids = new ArrayList<>();
-        ids.addAll(tasks.keySet());
-        ids.addAll(epics.keySet());
-        ids.addAll(subtasks.keySet());
-        return ids;
-    }
-
 }

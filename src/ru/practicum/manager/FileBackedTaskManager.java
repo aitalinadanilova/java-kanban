@@ -17,6 +17,84 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.file = file;
     }
 
+    @Override
+    public int addTask(Task task) {
+        int id = super.addTask(task);
+        save();
+        return id;
+    }
+
+    @Override
+    public int addEpic(Epic epic) {
+        int id = super.addEpic(epic);
+        save();
+        return id;
+    }
+
+    @Override
+    public int addSubTask(SubTask subtask) {
+        int id = super.addSubTask(subtask);
+        save();
+        return id;
+    }
+
+    @Override
+    public boolean updateTask(Task updatedTask) {
+        boolean result = super.updateTask(updatedTask);
+        save();
+        return result;
+    }
+
+    @Override
+    public boolean updateEpic(Epic updatedEpic) {
+        boolean result = super.updateEpic(updatedEpic);
+        save();
+        return result;
+    }
+
+    @Override
+    public boolean updateSubtask(SubTask updatedSubtask) {
+        boolean result = super.updateSubtask(updatedSubtask);
+        save();
+        return result;
+    }
+
+    @Override
+    public void deleteTask(int id) {
+        super.deleteTask(id);
+        save();
+    }
+
+    @Override
+    public void deleteEpic(int id) {
+        super.deleteEpic(id);
+        save();
+    }
+
+    @Override
+    public void deleteSubtask(int id) {
+        super.deleteSubtask(id);
+        save();
+    }
+
+    @Override
+    public void deleteAllTasks() {
+        super.deleteAllTasks();
+        save();
+    }
+
+    @Override
+    public void deleteAllEpics() {
+        super.deleteAllEpics();
+        save();
+    }
+
+    @Override
+    public void deleteAllSubtasks() {
+        super.deleteAllSubtasks();
+        save();
+    }
+
     protected void save() {
         try (Writer writer = new FileWriter(file)) {
             writer.write(HEADER + "\n");
@@ -85,6 +163,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             if (lines.isEmpty() || lines.size() == 1) return manager; // пустой файл
             lines.removeFirst();
 
+            int maxId = 0;
+
             for (String line : lines) {
                 if (line.isBlank()) continue;
                 Task task = manager.fromString(line);
@@ -96,6 +176,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 } else {
                     manager.tasks.put(task.getId(), task);
                 }
+
+                if (task.getId() > maxId) {
+                    maxId = task.getId();
+                }
             }
 
             for (SubTask sub : manager.subtasks.values()) {
@@ -105,10 +189,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
             }
 
-            int maxId = 0;
-            for (int id : manager.getAllIds()) {
-                if (id > maxId) maxId = id;
-            }
             manager.nextId = maxId + 1;
 
         } catch (IOException e) {
