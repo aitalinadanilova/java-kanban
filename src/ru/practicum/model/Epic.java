@@ -1,9 +1,12 @@
 package ru.practicum.model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
+    private LocalDateTime endTime;
     private final List<Integer> subtaskIds = new ArrayList<>();
 
     public Epic(String title, String description, Status status) {
@@ -26,7 +29,6 @@ public class Epic extends Task {
         subtaskIds.clear();
     }
 
-
     @Override
     public String toString() {
         return super.toString() + " | Подзадачи: " + subtaskIds;
@@ -37,5 +39,23 @@ public class Epic extends Task {
         return TaskType.EPIC;
     }
 
+
+    @Override
+    public Duration getDuration() {
+        return duration == null ? Duration.ZERO : duration;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        super.setStartTime(startTime);
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 }
 
