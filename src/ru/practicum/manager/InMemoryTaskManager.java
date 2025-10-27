@@ -214,13 +214,16 @@ public class InMemoryTaskManager implements TaskManager {
             epic.setStatus(Status.IN_PROGRESS);
         }
     }
+
     protected final Set<Task> prioritizedTasks = new TreeSet<>(
             Comparator.comparing(Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder()))
     );
+
     @Override
     public List<Task> getPrioritizedTasks() {
         return new ArrayList<>(prioritizedTasks);
     }
+
     private boolean hasOverlap(Task newTask) {
         LocalDateTime start = newTask.getStartTime();
         LocalDateTime end = newTask.getEndTime();
@@ -235,6 +238,7 @@ public class InMemoryTaskManager implements TaskManager {
                             !(end.isBefore(tStart) || start.isAfter(tEnd));
                 });
     }
+
     protected void validateNoOverlap(Task newTask) {
         if (newTask.getStartTime() == null || newTask.getDuration() == null) {
             return;
