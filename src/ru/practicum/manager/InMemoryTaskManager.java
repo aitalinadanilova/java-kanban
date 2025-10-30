@@ -311,10 +311,10 @@ public class InMemoryTaskManager implements TaskManager {
         if (subs.isEmpty()) {
             epic.setStartTime(null);
             epic.setDuration(Duration.ZERO);
-            // установим endTime в null, если есть такой сеттер
             try {
                 epic.setEndTime(null);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
             return;
         }
 
@@ -340,6 +340,7 @@ public class InMemoryTaskManager implements TaskManager {
         epic.setDuration(Duration.ofMinutes(totalMinutes));
         try {
             epic.setEndTime(end);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 }
