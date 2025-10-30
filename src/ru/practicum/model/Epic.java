@@ -50,10 +50,6 @@ public class Epic extends Task {
         return endTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
-        super.setStartTime(startTime);
-    }
-
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
