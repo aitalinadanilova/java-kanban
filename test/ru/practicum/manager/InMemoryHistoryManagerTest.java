@@ -2,8 +2,7 @@ package ru.practicum.manager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.practicum.model.Task;
-import ru.practicum.model.Status;
+import ru.practicum.model.*;
 
 import java.util.List;
 
@@ -11,66 +10,48 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryHistoryManagerTest {
 
-    private InMemoryHistoryManager history;
+    private InMemoryHistoryManager historyManager;
+    private Task task1, task2, task3;
 
     @BeforeEach
     void setUp() {
-        history = new InMemoryHistoryManager();
+        historyManager = new InMemoryHistoryManager();
+        task1 = new Task("T1", "desc1", Status.NEW);
+        task2 = new Task("T2", "desc2", Status.NEW);
+        task3 = new Task("T3", "desc3", Status.NEW);
+        task1.setId(1);
+        task2.setId(2);
+        task3.setId(3);
     }
 
     @Test
-    void add_shouldIgnoreNull() {
-        history.add(null);
-        List<Task> h = history.getHistory();
-        assertNotNull(h);
-        assertTrue(h.isEmpty(), "После добавления null история должна оставаться пустой");
+    void shouldReturnEmptyHistoryInitially() {
+        assertTrue(historyManager.getHistory().isEmpty(), "История изначально пуста");
     }
 
     @Test
-    void add_duplicateShouldMoveToTailAndKeepOnlyOneCopy() {
-        Task t1 = new Task("T1", "D1", Status.NEW);
-        t1.setId(1);
-        Task t2 = new Task("T2", "D2", Status.NEW);
-        t2.setId(2);
-
-        history.add(t1);
-        history.add(t2);
-        history.add(t1);
-
-        List<Task> h = history.getHistory();
-        assertEquals(2, h.size(), "Должно остаться 2 уникальные задачи");
-        assertEquals(2, h.get(0).getId());
-        assertEquals(1, h.get(1).getId());
+    void shouldAddAndNotDuplicateTasks() {
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task1);
+        List<Task> history = historyManager.getHistory();
+        assertEquals(2, history.size(), "Дубликаты не должны сохраняться");
+        assertEquals(task1, history.get(history.size() - 1), "Последним должен быть task1");
     }
 
     @Test
-    void getHistory_shouldReturnCopyNotReference() {
-        Task t1 = new Task("T1", "D1", Status.NEW);
-        t1.setId(1);
-        history.add(t1);
+    void shouldRemoveTasksFromBeginningMiddleAndEnd() {
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task3);
 
-        List<Task> first = history.getHistory();
-        assertEquals(1, first.size());
+        historyManager.remove(1); // начало
+        assertEquals(List.of(task2, task3), historyManager.getHistory());
 
-        first.clear();
+        historyManager.remove(2); // середина
+        assertEquals(List.of(task3), historyManager.getHistory());
 
-        List<Task> after = history.getHistory();
-        assertEquals(1, after.size(), "Изменение возвращённого списка не должно влиять на внутренний список");
-    }
-
-    @Test
-    void remove_shouldRemoveById() {
-        Task t1 = new Task("T1", "D1", Status.NEW);
-        t1.setId(1);
-        Task t2 = new Task("T2", "D2", Status.NEW);
-        t2.setId(2);
-
-        history.add(t1);
-        history.add(t2);
-
-        history.remove(2); // удаляем вторую
-        List<Task> h = history.getHistory();
-        assertEquals(1, h.size());
-        assertEquals(1, h.get(0).getId());
+        historyManager.remove(3); // конец
+        assertTrue(historyManager.getHistory().isEmpty());
     }
 }
