@@ -49,45 +49,45 @@ public class InMemoryTaskManager implements TaskManager {
         return epic.getId();
     }
 
-        @Override
-        public int addSubTask(SubTask subtask) {
-            if (subtask == null) return -1;
+    @Override
+    public int addSubTask(SubTask subtask) {
+        if (subtask == null) return -1;
 
-            Epic epic = epics.get(subtask.getEpicId());
-            if (epic == null) return -1;
+        Epic epic = epics.get(subtask.getEpicId());
+        if (epic == null) return -1;
 
-            if (subtask.getStartTime() != null && subtask.getDuration() != null && hasOverlap(subtask)) {
-                throw new IllegalArgumentException("Подзадача пересекается по времени: " + subtask.getTitle());
-            }
-
-            subtask.setId(generateId());
-            subtasks.put(subtask.getId(), subtask);
-            prioritizedTasks.add(subtask);
-
-            epic.addSubtaskId(subtask.getId());
-            updateEpicStatus(epic);
-            updateEpicTime(epic);
-            return subtask.getId();
+        if (subtask.getStartTime() != null && subtask.getDuration() != null && hasOverlap(subtask)) {
+            throw new IllegalArgumentException("Подзадача пересекается по времени: " + subtask.getTitle());
         }
+
+        subtask.setId(generateId());
+        subtasks.put(subtask.getId(), subtask);
+        prioritizedTasks.add(subtask);
+
+        epic.addSubtaskId(subtask.getId());
+        updateEpicStatus(epic);
+        updateEpicTime(epic);
+        return subtask.getId();
+    }
 
     // UPDATE
-        @Override
-        public boolean updateTask(Task updatedTask) {
-            if (updatedTask == null || !tasks.containsKey(updatedTask.getId())) return false;
+    @Override
+    public boolean updateTask(Task updatedTask) {
+        if (updatedTask == null || !tasks.containsKey(updatedTask.getId())) return false;
 
 
-            Task old = tasks.get(updatedTask.getId());
-            prioritizedTasks.remove(old);
+        Task old = tasks.get(updatedTask.getId());
+        prioritizedTasks.remove(old);
 
-            if (updatedTask.getStartTime() != null && updatedTask.getDuration() != null && hasOverlap(updatedTask)) {
-                prioritizedTasks.add(old);
-                throw new IllegalArgumentException("Обновление приводит к пересечению: " + updatedTask.getTitle());
-            }
-
-            tasks.put(updatedTask.getId(), updatedTask);
-            prioritizedTasks.add(updatedTask);
-            return true;
+        if (updatedTask.getStartTime() != null && updatedTask.getDuration() != null && hasOverlap(updatedTask)) {
+            prioritizedTasks.add(old);
+            throw new IllegalArgumentException("Обновление приводит к пересечению: " + updatedTask.getTitle());
         }
+
+        tasks.put(updatedTask.getId(), updatedTask);
+        prioritizedTasks.add(updatedTask);
+        return true;
+    }
 
     @Override
     public boolean updateEpic(Epic updatedEpic) {
@@ -297,24 +297,12 @@ public class InMemoryTaskManager implements TaskManager {
         return !(end.isBefore(newStart) || start.isAfter(newEnd));
     }
 
-    protected void validateNoOverlap(Task newTask) {
-        if (newTask == null) return;
-        if (newTask.getStartTime() == null || newTask.getDuration() == null) return;
-
-        if (hasOverlap(newTask)) {
-            throw new IllegalArgumentException("Задачи пересекаются по времени: " + newTask.getTitle());
-        }
-    }
-
     protected void updateEpicTime(Epic epic) {
         List<SubTask> subs = getEpicSubtasks(epic.getId());
         if (subs.isEmpty()) {
             epic.setStartTime(null);
             epic.setDuration(Duration.ZERO);
-            try {
-                epic.setEndTime(null);
-            } catch (Exception ignored) {
-            }
+            epic.setEndTime(null);
             return;
         }
 
@@ -338,9 +326,6 @@ public class InMemoryTaskManager implements TaskManager {
 
         epic.setStartTime(start);
         epic.setDuration(Duration.ofMinutes(totalMinutes));
-        try {
-            epic.setEndTime(end);
-        } catch (Exception ignored) {
-        }
+        epic.setEndTime(end);
     }
 }

@@ -1,7 +1,6 @@
 package ru.practicum.manager;
 
 import org.junit.jupiter.api.*;
-import ru.practicum.exception.ManagerLoadException;
 import ru.practicum.model.*;
 
 import java.io.File;
@@ -9,23 +8,27 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FileBackedTaskManagerTest {
+class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     private File file;
-    private FileBackedTaskManager manager;
 
-    @BeforeEach
-    void setUp() throws IOException {
-        file = File.createTempFile("tasks", ".csv");
-        manager = new FileBackedTaskManager(file);
+    @Override
+    protected FileBackedTaskManager createManager() {
+        try {
+            file = File.createTempFile("tasks", ".csv");
+            return new FileBackedTaskManager(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @AfterEach
     void tearDown() {
-        if (file.exists()) {
+        if (file != null && file.exists()) {
             file.delete();
         }
     }
@@ -42,12 +45,11 @@ class FileBackedTaskManagerTest {
         manager.addSubTask(sub);
 
         manager.save();
-
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
 
-        assertEquals(1, loaded.getAllTasks().size(), "Должна быть 1 задача");
-        assertEquals(1, loaded.getAllEpics().size(), "Должен быть 1 эпик");
-        assertEquals(1, loaded.getAllSubTasks().size(), "Должна быть 1 подзадача");
+        assertEquals(1, loaded.getAllTasks().size());
+        assertEquals(1, loaded.getAllEpics().size());
+        assertEquals(1, loaded.getAllSubTasks().size());
     }
 
     @Test
@@ -69,11 +71,10 @@ class FileBackedTaskManagerTest {
         manager.save();
 
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
-
         Task task3 = new Task("Task 3", "Desc", Status.NEW);
         loaded.addTask(task3);
 
-        assertEquals(3, task3.getId(), "Следующий ID должен быть корректно увеличен");
+        assertEquals(3, task3.getId());
     }
 
     @Test
@@ -87,8 +88,8 @@ class FileBackedTaskManagerTest {
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
         Task loadedTask = loaded.getAllTasks().getFirst();
 
-        assertEquals(task.getStartTime(), loadedTask.getStartTime(), "Время начала должно совпадать");
-        assertEquals(task.getDuration(), loadedTask.getDuration(), "Продолжительность должна совпадать");
+        assertEquals(task.getStartTime(), loadedTask.getStartTime());
+        assertEquals(task.getDuration(), loadedTask.getDuration());
     }
 
     @Test
@@ -105,7 +106,7 @@ class FileBackedTaskManagerTest {
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
         Epic loadedEpic = loaded.getEpic(epicId);
 
-        assertEquals(2, loadedEpic.getSubtaskIds().size(), "Эпик должен содержать 2 подзадачи после загрузки");
+        assertEquals(2, loadedEpic.getSubtaskIds().size());
     }
 
     @Test
@@ -128,18 +129,14 @@ class FileBackedTaskManagerTest {
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
         Epic loadedEpic = loaded.getEpic(epicId);
 
-        assertEquals(LocalDateTime.of(2025, 10, 30, 10, 0), loadedEpic.getStartTime(),
-                "Старт эпика должен быть равен самому раннему старту подзадачи");
-        assertEquals(LocalDateTime.of(2025, 10, 30, 12, 30), loadedEpic.getEndTime(),
-                "Конец эпика должен быть равен самому позднему окончанию подзадачи");
+        assertEquals(LocalDateTime.of(2025, 10, 30, 10, 0), loadedEpic.getStartTime());
+        assertEquals(LocalDateTime.of(2025, 10, 30, 12, 30), loadedEpic.getEndTime());
     }
 
     @Test
     void shouldThrowExceptionWhenFileIsCorrupted() throws IOException {
         Files.writeString(file.toPath(), "id,type,name,status,description,epic\nbroken,line,here\n");
-        assertThrows(NumberFormatException.class, () -> {
-            FileBackedTaskManager.loadFromFile(file);
-        });
+        assertThrows(NumberFormatException.class, () -> FileBackedTaskManager.loadFromFile(file));
     }
 
     @Test
@@ -152,7 +149,7 @@ class FileBackedTaskManagerTest {
         manager.updateTask(t);
         long after = file.length();
 
-        assertTrue(after >= before, "Файл должен обновляться после каждого изменения");
+        assertTrue(after >= before);
     }
 
     @Test
@@ -167,6 +164,27 @@ class FileBackedTaskManagerTest {
         manager.save();
 
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
-        assertEquals(1, loaded.getAllTasks().size(), "После удаления должна остаться одна задача");
+        assertEquals(1, loaded.getAllTasks().size());
+    }
+
+    @Test
+    void shouldRestorePrioritizedTasksAfterLoad() {
+        Task t1 = new Task("T1", "desc", Status.NEW);
+        t1.setStartTime(LocalDateTime.of(2025, 10, 30, 10, 0));
+        t1.setDuration(Duration.ofMinutes(30));
+
+        Task t2 = new Task("T2", "desc", Status.NEW);
+        t2.setStartTime(LocalDateTime.of(2025, 10, 30, 9, 0));
+        t2.setDuration(Duration.ofMinutes(30));
+
+        manager.addTask(t1);
+        manager.addTask(t2);
+        manager.save();
+
+        FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
+        List<Task> prioritized = loaded.getPrioritizedTasks();
+
+        assertEquals("T2", prioritized.getFirst().getTitle(),
+                "После загрузки задачи должны оставаться отсортированными по времени начала");
     }
 }
