@@ -6,13 +6,16 @@ import ru.practicum.model.SubTask;
 import ru.practicum.model.Status;
 import ru.practicum.manager.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager manager = Managers.getDefault();
 
         // Создаём обычные задачи
-        Task task1 = new Task("Переезд", "Собрать вещи", Status.NEW);
-        Task task2 = new Task("Учёба", "Закончить проект", Status.IN_PROGRESS);
+        Task task1 = new Task("Переезд", "Собрать вещи", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        Task task2 = new Task("Учёба", "Закончить проект", Status.IN_PROGRESS, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(task1);
         manager.addTask(task2);
 

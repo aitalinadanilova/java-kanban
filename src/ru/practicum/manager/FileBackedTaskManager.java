@@ -149,7 +149,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
         return switch (type) {
             case TASK -> {
-                Task task = new Task(name, description, status);
+                Task task = new Task(name, description, status, Duration.ofMinutes(10), LocalDateTime.now());
                 task.setId(id);
                 task.setDuration(Duration.ofMinutes(durationMinutes));
                 task.setStartTime(startTime);
