@@ -8,8 +8,6 @@ import ru.practicum.model.*;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.*;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
