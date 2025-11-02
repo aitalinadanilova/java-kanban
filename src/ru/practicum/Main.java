@@ -54,7 +54,6 @@ public class Main {
 
         System.out.println("\nПроверка эпика2 (должен быть DONE):");
 
-
         System.out.println("\n Списки после обновления статусов ");
         System.out.println("Задачи: " + manager.getAllTasks());
         System.out.println("Эпики: " + manager.getAllEpics());
