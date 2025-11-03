@@ -1,8 +1,7 @@
 package ru.practicum.http;
 
-import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
+import ru.practicum.exception.TimeOverlapException;
 import ru.practicum.manager.TaskManager;
 import ru.practicum.model.SubTask;
 
@@ -11,13 +10,10 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class SubTasksHandler extends BaseHttpHandler implements HttpHandler {
-
-    private final TaskManager manager;
-    private final Gson gson = HttpTaskServer.getGson();
+public class SubTasksHandler extends BaseHttpHandler {
 
     public SubTasksHandler(TaskManager manager) {
-        this.manager = manager;
+        super(manager);
     }
 
     @Override
@@ -39,6 +35,7 @@ public class SubTasksHandler extends BaseHttpHandler implements HttpHandler {
                         sendNotFound(exchange);
                     }
                 }
+
             } else if (method.equals("POST")) {
                 InputStream is = exchange.getRequestBody();
                 String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
@@ -49,17 +46,27 @@ public class SubTasksHandler extends BaseHttpHandler implements HttpHandler {
                     sendCreated(exchange, gson.toJson(subTask));
                 } else {
                     boolean updated = manager.updateSubtask(subTask);
-                    if (updated) sendCreated(exchange, gson.toJson(subTask));
-                    else sendNotFound(exchange);
+                    if (updated) {
+                        sendCreated(exchange, gson.toJson(subTask));
+                    } else {
+                        sendNotFound(exchange);
+                    }
                 }
+
             } else if (method.equals("DELETE") && path.matches("/subtasks/\\d+")) {
                 int id = Integer.parseInt(path.split("/")[2]);
                 manager.deleteSubtask(id);
                 sendOk(exchange, "{\"status\":\"deleted\"}");
+            } else {
+                sendMethodNotAllowed(exchange);
             }
+
+        } catch (TimeOverlapException e) {
+            sendNotAcceptable(exchange, e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace();
             sendServerError(exchange);
+        } finally {
+            exchange.close();
         }
     }
 }

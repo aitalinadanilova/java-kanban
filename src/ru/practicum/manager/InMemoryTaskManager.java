@@ -1,5 +1,6 @@
 package ru.practicum.manager;
 
+import ru.practicum.exception.TimeOverlapException;
 import ru.practicum.model.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -57,7 +58,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (epic == null) return -1;
 
         if (subtask.getStartTime() != null && subtask.getDuration() != null && hasOverlap(subtask)) {
-            throw new IllegalArgumentException("Подзадача пересекается по времени: " + subtask.getTitle());
+            throw new TimeOverlapException("Подзадача пересекается по времени: " + subtask.getTitle());
         }
 
         subtask.setId(generateId());

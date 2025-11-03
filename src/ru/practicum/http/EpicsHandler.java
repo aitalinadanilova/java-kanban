@@ -1,23 +1,18 @@
 package ru.practicum.http;
 
-import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.manager.TaskManager;
 import ru.practicum.model.Epic;
+import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
-
-    private final TaskManager manager;
-    private final Gson gson = HttpTaskServer.getGson();
+public class EpicsHandler extends BaseHttpHandler {
 
     public EpicsHandler(TaskManager manager) {
-        this.manager = manager;
+        super(manager);
     }
 
     @Override
@@ -26,20 +21,18 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
             String method = exchange.getRequestMethod();
             String path = exchange.getRequestURI().getPath();
 
-            if (method.equals("GET")) {
+            if ("GET".equals(method)) {
                 if (path.matches("/epics/?")) {
                     List<Epic> epics = manager.getAllEpics();
                     sendOk(exchange, gson.toJson(epics));
                 } else if (path.matches("/epics/\\d+")) {
                     int id = Integer.parseInt(path.split("/")[2]);
                     Epic epic = manager.getEpic(id);
-                    if (epic != null) {
-                        sendOk(exchange, gson.toJson(epic));
-                    } else {
-                        sendNotFound(exchange);
-                    }
+                    if (epic != null) sendOk(exchange, gson.toJson(epic));
+                    else sendNotFound(exchange);
                 }
-            } else if (method.equals("POST")) {
+
+            } else if ("POST".equals(method)) {
                 InputStream is = exchange.getRequestBody();
                 String body = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                 Epic epic = gson.fromJson(body, Epic.class);
@@ -52,14 +45,19 @@ public class EpicsHandler extends BaseHttpHandler implements HttpHandler {
                     if (updated) sendCreated(exchange, gson.toJson(epic));
                     else sendNotFound(exchange);
                 }
-            } else if (method.equals("DELETE") && path.matches("/epics/\\d+")) {
+
+            } else if ("DELETE".equals(method) && path.matches("/epics/\\d+")) {
                 int id = Integer.parseInt(path.split("/")[2]);
                 manager.deleteEpic(id);
                 sendOk(exchange, "{\"status\":\"deleted\"}");
+            } else {
+                sendMethodNotAllowed(exchange);
             }
+
         } catch (Exception e) {
-            e.printStackTrace();
             sendServerError(exchange);
+        } finally {
+            exchange.close();
         }
     }
 }

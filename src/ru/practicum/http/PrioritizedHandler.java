@@ -1,19 +1,14 @@
 package ru.practicum.http;
 
-import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.manager.TaskManager;
+import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
 
-public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
-
-    private final TaskManager manager;
-    private final Gson gson = new Gson();
+public class PrioritizedHandler extends BaseHttpHandler {
 
     public PrioritizedHandler(TaskManager manager) {
-        this.manager = manager;
+        super(manager);
     }
 
     @Override
@@ -26,7 +21,8 @@ public class PrioritizedHandler extends BaseHttpHandler implements HttpHandler {
             sendOk(exchange, gson.toJson(manager.getPrioritizedTasks()));
         } catch (Exception e) {
             sendServerError(exchange);
+        } finally {
+            exchange.close();
         }
     }
 }
-

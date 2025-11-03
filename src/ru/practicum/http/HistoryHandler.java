@@ -1,19 +1,14 @@
 package ru.practicum.http;
 
-import com.google.gson.Gson;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import ru.practicum.manager.TaskManager;
+import com.sun.net.httpserver.HttpExchange;
 
 import java.io.IOException;
 
-public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
-
-    private final TaskManager manager;
-    private final Gson gson = HttpTaskServer.getGson();
+public class HistoryHandler extends BaseHttpHandler {
 
     public HistoryHandler(TaskManager manager) {
-        this.manager = manager;
+        super(manager);
     }
 
     @Override
@@ -25,8 +20,9 @@ public class HistoryHandler extends BaseHttpHandler implements HttpHandler {
             }
             sendOk(exchange, gson.toJson(manager.getHistory()));
         } catch (Exception e) {
-            e.printStackTrace();
             sendServerError(exchange);
+        } finally {
+            exchange.close();
         }
     }
 }
