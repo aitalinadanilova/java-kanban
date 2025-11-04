@@ -12,7 +12,7 @@ public class Task {
     protected Duration duration;
     protected LocalDateTime startTime;
 
-    public Task(String title, String description, Status status) {
+    public Task(String title, String description, Status status, Duration duration, LocalDateTime now) {
         this.title = title;
         this.description = description;
         this.status = status;

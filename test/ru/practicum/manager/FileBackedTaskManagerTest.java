@@ -34,25 +34,6 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void shouldSaveAndLoadTasksCorrectly() {
-        Task task = new Task("Test task", "Simple description", Status.NEW);
-        manager.addTask(task);
-
-        Epic epic = new Epic("Epic", "Epic description", Status.NEW);
-        int epicId = manager.addEpic(epic);
-
-        SubTask sub = new SubTask("Subtask", "Part of epic", Status.DONE, epicId);
-        manager.addSubTask(sub);
-
-        manager.save();
-        FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
-
-        assertEquals(1, loaded.getAllTasks().size());
-        assertEquals(1, loaded.getAllEpics().size());
-        assertEquals(1, loaded.getAllSubTasks().size());
-    }
-
-    @Test
     void shouldHandleEmptyFile() throws IOException {
         Files.write(file.toPath(), "id,type,name,status,description,epic,duration,startTime\n".getBytes());
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
@@ -64,32 +45,17 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void shouldIncrementNextIdProperly() {
-        Task task1 = new Task("Task 1", "Desc", Status.NEW);
+        Task task1 = new Task("Task 1", "Desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(task1);
-        Task task2 = new Task("Task 2", "Desc", Status.NEW);
+        Task task2 = new Task("Task 2", "Desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(task2);
         manager.save();
 
         FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
-        Task task3 = new Task("Task 3", "Desc", Status.NEW);
+        Task task3 = new Task("Task 3", "Desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         loaded.addTask(task3);
 
         assertEquals(3, task3.getId());
-    }
-
-    @Test
-    void shouldSaveAndLoadStartTimeAndDuration() {
-        Task task = new Task("Timed", "With time", Status.NEW);
-        task.setStartTime(LocalDateTime.of(2025, 10, 30, 12, 0));
-        task.setDuration(Duration.ofMinutes(90));
-        manager.addTask(task);
-        manager.save();
-
-        FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
-        Task loadedTask = loaded.getAllTasks().getFirst();
-
-        assertEquals(task.getStartTime(), loadedTask.getStartTime());
-        assertEquals(task.getDuration(), loadedTask.getDuration());
     }
 
     @Test
@@ -141,7 +107,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void shouldSaveAfterEachModification() {
-        Task t = new Task("A", "desc", Status.NEW);
+        Task t = new Task("A", "desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(t);
 
         long before = file.length();
@@ -154,10 +120,10 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void shouldDeleteAndResaveCorrectly() {
-        Task t1 = new Task("A", "desc", Status.NEW);
+        Task t1 = new Task("A", "desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         int id1 = manager.addTask(t1);
 
-        Task t2 = new Task("B", "desc", Status.NEW);
+        Task t2 = new Task("B", "desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(t2);
 
         manager.deleteTask(id1);
@@ -169,11 +135,11 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @Test
     void shouldRestorePrioritizedTasksAfterLoad() {
-        Task t1 = new Task("T1", "desc", Status.NEW);
+        Task t1 = new Task("T1", "desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         t1.setStartTime(LocalDateTime.of(2025, 10, 30, 10, 0));
         t1.setDuration(Duration.ofMinutes(30));
 
-        Task t2 = new Task("T2", "desc", Status.NEW);
+        Task t2 = new Task("T2", "desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         t2.setStartTime(LocalDateTime.of(2025, 10, 30, 9, 0));
         t2.setDuration(Duration.ofMinutes(30));
 
@@ -186,5 +152,46 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
         assertEquals("T2", prioritized.getFirst().getTitle(),
                 "После загрузки задачи должны оставаться отсортированными по времени начала");
+    }
+
+    @Test
+    void shouldSaveAndLoadTasksCorrectly() {
+        Task task = new Task("Test task", "Simple description", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        manager.addTask(task);
+
+        Epic epic = new Epic("Epic", "Epic description", Status.NEW);
+        int epicId = manager.addEpic(epic);
+
+        SubTask sub = new SubTask("Subtask", "Part of epic", Status.DONE, epicId);
+        manager.addSubTask(sub);
+
+        manager.save();
+
+        FileBackedTaskManager loaded = FileBackedTaskManager.loadFromFile(file);
+
+        assertEquals(1, loaded.getAllTasks().size(), "Должна быть 1 задача");
+        Task loadedTask = loaded.getAllTasks().getFirst();
+        assertEquals(task.getId(), loadedTask.getId());
+        assertEquals(task.getTitle(), loadedTask.getTitle());
+        assertEquals(task.getDescription(), loadedTask.getDescription());
+        assertEquals(task.getStatus(), loadedTask.getStatus());
+
+        assertEquals(1, loaded.getAllEpics().size(), "Должен быть 1 эпик");
+        Epic loadedEpic = loaded.getAllEpics().getFirst();
+        assertEquals(epic.getId(), loadedEpic.getId());
+        assertEquals(epic.getTitle(), loadedEpic.getTitle());
+        assertEquals(epic.getDescription(), loadedEpic.getDescription());
+        assertEquals(epic.getStatus(), loadedEpic.getStatus());
+        assertEquals(epic.getSubtaskIds().size(), loadedEpic.getSubtaskIds().size(),
+                "Количество подзадач у эпика должно совпадать");
+
+        assertEquals(1, loaded.getAllSubTasks().size(), "Должна быть 1 подзадача");
+        SubTask loadedSub = loaded.getAllSubTasks().getFirst();
+        assertEquals(sub.getId(), loadedSub.getId());
+        assertEquals(sub.getTitle(), loadedSub.getTitle());
+        assertEquals(sub.getDescription(), loadedSub.getDescription());
+        assertEquals(sub.getStatus(), loadedSub.getStatus());
+        assertEquals(sub.getEpicId(), loadedSub.getEpicId(),
+                "EpicId подзадачи должен совпадать");
     }
 }

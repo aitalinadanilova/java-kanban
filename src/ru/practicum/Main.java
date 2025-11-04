@@ -6,17 +6,18 @@ import ru.practicum.model.SubTask;
 import ru.practicum.model.Status;
 import ru.practicum.manager.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager manager = Managers.getDefault();
 
-        // Создаём обычные задачи
-        Task task1 = new Task("Переезд", "Собрать вещи", Status.NEW);
-        Task task2 = new Task("Учёба", "Закончить проект", Status.IN_PROGRESS);
+        Task task1 = new Task("Переезд", "Собрать вещи", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        Task task2 = new Task("Учёба", "Закончить проект", Status.IN_PROGRESS, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(task1);
         manager.addTask(task2);
 
-        // Эпик с подзадачами
         Epic epic1 = new Epic("Праздник", "Организовать вечеринку", Status.NEW);
         manager.addEpic(epic1);
 
@@ -25,13 +26,11 @@ public class Main {
         manager.addSubTask(sub1);
         manager.addSubTask(sub2);
 
-        // Эпик с одной подзадачей
         Epic epic2 = new Epic("Ремонт", "Обновить кухню", Status.NEW);
         manager.addEpic(epic2);
         SubTask sub3 = new SubTask("Покрасить стены", "Выбрать цвет", Status.DONE, epic2.getId());
         manager.addSubTask(sub3);
 
-        // Вывод всех
         System.out.println("\nВсе задачи:");
         System.out.println(manager.getAllTasks());
 
@@ -41,7 +40,6 @@ public class Main {
         System.out.println("\nВсе подзадачи:");
         System.out.println(manager.getAllSubTasks());
 
-        // Меняем статусы и проверяем перерасчёт эпиков
         task2.setStatus(Status.DONE);
         manager.updateTask(task2);
 
@@ -56,16 +54,13 @@ public class Main {
 
         System.out.println("\nПроверка эпика2 (должен быть DONE):");
 
-
-        // Печатаем обновлённые списки
         System.out.println("\n Списки после обновления статусов ");
         System.out.println("Задачи: " + manager.getAllTasks());
         System.out.println("Эпики: " + manager.getAllEpics());
         System.out.println("Подзадачи: " + manager.getAllSubTasks());
 
-        // Удаление
-        manager.deleteTask(task1.getId());   // удаляем task1
-        manager.deleteEpic(epic1.getId());   // удаляем epic
+        manager.deleteTask(task1.getId());
+        manager.deleteEpic(epic1.getId());
 
         System.out.println("\nПосле удаления:");
         System.out.println("Задачи: " + manager.getAllTasks());

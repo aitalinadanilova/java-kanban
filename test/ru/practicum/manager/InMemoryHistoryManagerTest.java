@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.practicum.model.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,9 +18,9 @@ class InMemoryHistoryManagerTest {
     @BeforeEach
     void setUp() {
         historyManager = new InMemoryHistoryManager();
-        task1 = new Task("T1", "desc1", Status.NEW);
-        task2 = new Task("T2", "desc2", Status.NEW);
-        task3 = new Task("T3", "desc3", Status.NEW);
+        task1 = new Task("T1", "desc1", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        task2 = new Task("T2", "desc2", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
+        task3 = new Task("T3", "desc3", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         task1.setId(1);
         task2.setId(2);
         task3.setId(3);

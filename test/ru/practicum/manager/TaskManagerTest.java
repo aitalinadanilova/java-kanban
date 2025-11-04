@@ -25,7 +25,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldAddAndGetTask() {
-        Task task = new Task("Task 1", "Description", Status.NEW);
+        Task task = new Task("Task 1", "Description", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         int id = manager.addTask(task);
 
         Task saved = manager.getTask(id);
@@ -50,10 +50,10 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldUpdateTask() {
-        Task task = new Task("Task", "Desc", Status.NEW);
+        Task task = new Task("Task", "Desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         int id = manager.addTask(task);
 
-        Task updated = new Task("Updated", "Desc2", Status.DONE);
+        Task updated = new Task("Updated", "Desc2", Status.DONE, Duration.ofMinutes(10), LocalDateTime.now());
         updated.setId(id);
         boolean result = manager.updateTask(updated);
 
@@ -85,7 +85,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldDeleteSingleTaskEpicAndSubtask() {
-        Task t = new Task("T", "D", Status.NEW);
+        Task t = new Task("T", "D", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         int tId = manager.addTask(t);
         manager.deleteTask(tId);
         assertNull(manager.getTask(tId));
@@ -107,7 +107,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldDeleteAllTasksEpicsAndSubtasks() {
-        Task t = new Task("T", "D", Status.NEW);
+        Task t = new Task("T", "D", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         manager.addTask(t);
 
         Epic e = new Epic("E", "D", Status.NEW);
@@ -127,7 +127,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldReturnAllTasksEpicsAndSubtasks() {
-        manager.addTask(new Task("T", "D", Status.NEW));
+        manager.addTask(new Task("T", "D", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now()));
         int eId = manager.addEpic(new Epic("E", "D", Status.NEW));
         manager.addSubTask(new SubTask("S", "D", Status.NEW, eId));
 
@@ -153,7 +153,7 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldTrackHistory() {
-        Task task = new Task("History", "desc", Status.NEW);
+        Task task = new Task("History", "desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         int id = manager.addTask(task);
         manager.getTask(id);
 
@@ -166,11 +166,11 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldReturnTasksSortedByStartTime() {
-        Task t1 = new Task("T1", "D", Status.NEW);
+        Task t1 = new Task("T1", "D", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         t1.setStartTime(LocalDateTime.of(2025, 10, 22, 10, 0));
         t1.setDuration(Duration.ofMinutes(60));
 
-        Task t2 = new Task("T2", "D", Status.NEW);
+        Task t2 = new Task("T2", "D", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         t2.setStartTime(LocalDateTime.of(2025, 10, 22, 8, 0));
         t2.setDuration(Duration.ofMinutes(60));
 
@@ -208,12 +208,12 @@ abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void shouldNotAllowOverlappingTasks() {
-        Task t1 = new Task("T1", "desc", Status.NEW);
+        Task t1 = new Task("T1", "desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         t1.setStartTime(LocalDateTime.of(2025, 10, 22, 10, 0));
         t1.setDuration(Duration.ofMinutes(60));
         manager.addTask(t1);
 
-        Task t2 = new Task("T2", "desc", Status.NEW);
+        Task t2 = new Task("T2", "desc", Status.NEW, Duration.ofMinutes(10), LocalDateTime.now());
         t2.setStartTime(LocalDateTime.of(2025, 10, 22, 10, 30));
         t2.setDuration(Duration.ofMinutes(60));
 

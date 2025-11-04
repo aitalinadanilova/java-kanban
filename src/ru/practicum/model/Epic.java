@@ -10,7 +10,7 @@ public class Epic extends Task {
     private final List<Integer> subtaskIds = new ArrayList<>();
 
     public Epic(String title, String description, Status status) {
-        super(title, description, status);
+        super(title, description, status, Duration.ofMinutes(10), LocalDateTime.now());
     }
 
     public List<Integer> getSubtaskIds() {
@@ -37,12 +37,6 @@ public class Epic extends Task {
     @Override
     public TaskType getType() {
         return TaskType.EPIC;
-    }
-
-
-    @Override
-    public Duration getDuration() {
-        return duration == null ? Duration.ZERO : duration;
     }
 
     @Override
