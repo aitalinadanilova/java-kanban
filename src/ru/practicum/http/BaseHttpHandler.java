@@ -53,4 +53,8 @@ public abstract class BaseHttpHandler implements HttpHandler {
     protected void sendNotAcceptable(HttpExchange exchange, String message) throws IOException {
         sendText(exchange, String.format("{\"error\":\"%s\"}", message), 406);
     }
+
+    protected void sendBadRequest(HttpExchange exchange) throws IOException {
+        sendText(exchange, "{\"error\":\"Bad Request\"}", 400);
+    }
 }
